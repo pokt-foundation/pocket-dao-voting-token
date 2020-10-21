@@ -7,10 +7,14 @@ import "./token/ERC20/IERC20.sol";
 import "./math/SafeMath.sol";
 
 /**
- * POKT DAO Vote token.
- * 
- * @dev This implementation is based on the Open Zeppelin ERC20 implementation, with some modifications.
+ * Pocket DAO Vote Token.
  *
+ * @dev This implementation is based on the Open Zeppelin ERC20 implementation, with some modifications.
+ * The POKT DAO Vote Token is a non transferable token that holders to vote.
+ *
+ * Every voter can receive exactly 1 token
+ * Once granted a vote can not be taken away
+ * The token is distributed through authorized accounts.
  */
 contract POKTDAO is Context, IERC20 {
     using SafeMath for uint256;
@@ -239,6 +243,6 @@ contract POKTDAO is Context, IERC20 {
       require(amount==1, "Transfer amount must be 1");
       require(_balances[from]==0,"Account already has a Pocket Dao Vote");
 
-      TransfersAuthorized[msg.sender]--;
+      TransfersAuthorized[from]--;
      }
 }
