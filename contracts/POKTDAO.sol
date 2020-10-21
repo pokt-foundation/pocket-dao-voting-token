@@ -251,14 +251,6 @@ contract POKTDAO is Context, IERC20 {
      * minting and burning.
      *
      * Calling conditions:
-     *
-     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
-     * will be to transferred to `to`.
-     * - when `from` is zero, `amount` tokens will be minted for `to`.
-     * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
-     * - `from` and `to` are never both zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
     function _beforeTokenTransfer(address from, uint256 amount) internal virtual {
       require(TransfersAuthorized[from]>0,"Transfers not authorized from this account");
