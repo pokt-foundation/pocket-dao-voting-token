@@ -200,9 +200,8 @@ contract POKTDAO is Context, IERC20 {
      * - balance of account must be 0
      */
     function _mint(address AuthorizedMinter, address account, uint256 amount) internal virtual {
-        require(account != address(0), "ERC20: mint to the zero address");
 
-        _beforeTokenTransfer(AuthorizedMinter, amount);
+        _beforeTokenTransfer(AuthorizedMinter, account,amount);
 
         _totalSupply = _totalSupply.add(amount);
         _balances[account] = _balances[account].add(amount);
@@ -238,10 +237,11 @@ contract POKTDAO is Context, IERC20 {
      *
      * Calling conditions:
      */
-    function _beforeTokenTransfer(address from, uint256 amount) internal virtual {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual {
+      require(to != address(0), "ERC20: mint to the zero address");
       require(TransfersAuthorized[from]>0,"Transfers not authorized from this account");
       require(amount==1, "Transfer amount must be 1");
-      require(_balances[from]==0,"Account already has a Pocket Dao Vote");
+      require(_balances[to]==0,"Account already has a Pocket Dao Vote");
 
       TransfersAuthorized[from]--;
      }
