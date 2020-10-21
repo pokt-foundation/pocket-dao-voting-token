@@ -123,9 +123,7 @@ contract POKTDAO is Context, IERC20 {
      * - the caller must have a balance of at least `amount`.
      */
     function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
-        require(TransfersAuthorized[msg.sender]>0,"Transfers not authorized from this account");
-        TransfersAuthorized[msg.sender]--;
-        _mint(recipient, amount);
+        _mint(msg.sender,recipient, amount);
         return true;
     }
 
@@ -162,9 +160,7 @@ contract POKTDAO is Context, IERC20 {
      * `amount`.
      */
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
-        require(TransfersAuthorized[sender]>0,"Transfers not authorized from this account");
-        TransfersAuthorized[sender]--;
-        _mint(recipient, amount);
+        _mint(msg.sender,recipient, amount);
         _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
         return true;
     }
@@ -205,30 +201,6 @@ contract POKTDAO is Context, IERC20 {
         return true;
     }
 
-    /**
-     * @dev Moves tokens `amount` from `sender` to `recipient`.
-     *
-     * This is internal function is equivalent to {transfer}, and can be used to
-     * e.g. implement automatic token fees, slashing mechanisms, etc.
-     *
-     * Emits a {Transfer} event.
-     *
-     * Requirements:
-     *
-     * - `sender` cannot be the zero address.
-     * - `recipient` cannot be the zero address.
-     * - `sender` must have a balance of at least `amount`.
-     */
-    function _transfer(address sender, address recipient, uint256 amount) internal virtual {
-        require(sender != address(0), "ERC20: transfer from the zero address");
-        require(recipient != address(0), "ERC20: transfer to the zero address");
-
-        _beforeTokenTransfer(sender, recipient, amount);
-
-        _balances[sender] = _balances[sender].sub(amount, "ERC20: transfer amount exceeds balance");
-        _balances[recipient] = _balances[recipient].add(amount);
-        emit Transfer(sender, recipient, amount);
-    }
 
     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
      * the total supply.
@@ -241,38 +213,16 @@ contract POKTDAO is Context, IERC20 {
      * - `amount` must be equal to 1
      * - balance of account must be 0
      */
-    function _mint(address account, uint256 amount) internal virtual {
+    function _mint(address AuthorizedMinter, address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: mint to the zero address");
-        require(amount==1, "Can only transfer 1 Pocket Dao Vote");
-        require(_balances[account]==0,"Account already has a Pocket Dao Vote");
 
-        _beforeTokenTransfer(address(0), account, amount);
+        _beforeTokenTransfer(AuthorizedMinter, amount);
 
         _totalSupply = _totalSupply.add(amount);
         _balances[account] = _balances[account].add(amount);
         emit Transfer(address(0), account, amount);
     }
 
-    /**
-     * @dev Destroys `amount` tokens from `account`, reducing the
-     * total supply.
-     *
-     * Emits a {Transfer} event with `to` set to the zero address.
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
-     * - `account` must have at least `amount` tokens.
-     */
-    function _burn(address account, uint256 amount) internal virtual {
-        require(account != address(0), "ERC20: burn from the zero address");
-
-        _beforeTokenTransfer(account, address(0), amount);
-
-        _balances[account] = _balances[account].sub(amount, "ERC20: burn amount exceeds balance");
-        _totalSupply = _totalSupply.sub(amount);
-        emit Transfer(account, address(0), amount);
-    }
 
     /**
      * @dev Sets `amount` as the allowance of `spender` over the `owner` s tokens.
@@ -295,16 +245,6 @@ contract POKTDAO is Context, IERC20 {
         emit Approval(owner, spender, amount);
     }
 
-    /**
-     * @dev Sets {decimals} to a value other than the default one of 18.
-     *
-     * WARNING: This function should only be called from the constructor. Most
-     * applications that interact with token contracts will not expect
-     * {decimals} to ever change, and may work incorrectly if it does.
-     */
-    function _setupDecimals(uint8 decimals_) internal {
-        _decimals = decimals_;
-    }
 
     /**
      * @dev Hook that is called before any transfer of tokens. This includes
@@ -320,5 +260,11 @@ contract POKTDAO is Context, IERC20 {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
+    function _beforeTokenTransfer(address from, uint256 amount) internal virtual {
+      require(TransfersAuthorized[from]>0,"Transfers not authorized from this account");
+      require(amount==1, "Transfer amount must be 1");
+      require(_balances[from]==0,"Account already has a Pocket Dao Vote");
+
+      TransfersAuthorized[msg.sender]--;
+     }
 }
