@@ -6,6 +6,7 @@ import "./GSN/Context.sol";
 import "./token/ERC20/IERC20.sol";
 import "./math/SafeMath.sol";
 
+
 /**
  * Pocket DAO Vote Token.
  *
@@ -24,7 +25,7 @@ contract POKTDAO is Context, IERC20 {
         _;
     }
 
-    mapping (address => uint256) private _balances;
+    mapping (address => bool) private _hasVote;
 
     mapping (address => mapping (address => uint256)) private _allowances;
 
@@ -97,7 +98,11 @@ contract POKTDAO is Context, IERC20 {
      * @dev See {IERC20-balanceOf}.
      */
     function balanceOf(address account) public view override returns (uint256) {
-        return _balances[account];
+        if(_hasVote[account]==true){
+            return(1);
+        } else {
+            return(0);
+        }
     }
 
     /**
@@ -200,11 +205,12 @@ contract POKTDAO is Context, IERC20 {
      * - balance of account must be 0
      */
     function _mint(address AuthorizedMinter, address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: mint to the zero address");
 
         _beforeTokenTransfer(AuthorizedMinter, account,amount);
 
         _totalSupply = _totalSupply.add(amount);
-        _balances[account] = _balances[account].add(amount);
+        _hasVote[account] = true;
         emit Transfer(address(0), account, amount);
     }
 
@@ -238,11 +244,10 @@ contract POKTDAO is Context, IERC20 {
      * Calling conditions:
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual {
-      require(to != address(0), "ERC20: mint to the zero address");
       require(TransfersAuthorized[from]>0,"Transfers not authorized from this account");
       require(amount==1, "Transfer amount must be 1");
-      require(_balances[to]==0,"Account already has a Pocket Dao Vote");
+      require(_hasVote[to]==false,"Account already has a Pocket Dao Vote");
 
-      TransfersAuthorized[from]--;
+      TransfersAuthorized[from] = TransfersAuthorized[from].sub(amount);
      }
 }
