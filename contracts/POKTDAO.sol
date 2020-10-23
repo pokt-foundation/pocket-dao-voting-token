@@ -96,6 +96,8 @@ contract POKTDAO is Context, IERC20 {
 
     /**
      * @dev See {IERC20-balanceOf}.
+     * Returns 1 if account has a vote
+     * Returns 0 if account does not have a vote
      */
     function balanceOf(address account) public view override returns (uint256) {
         if(_hasVote[account]==true){
@@ -111,7 +113,6 @@ contract POKTDAO is Context, IERC20 {
      * Requirements:
      *
      * - `recipient` cannot be the zero address.
-     * - the caller must have a balance of at least `amount`.
      */
     function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
         _mint(msg.sender,recipient, amount);
@@ -145,10 +146,9 @@ contract POKTDAO is Context, IERC20 {
      *
      * Requirements:
      *
-     * - `sender` and `recipient` cannot be the zero address.
-     * - `sender` must have a balance of at least `amount`.
-     * - the caller must have allowance for ``sender``'s tokens of at least
-     * `amount`.
+     * - `recipient` cannot be the zero address.
+     * - `sender` have at least 1 authorized transfer
+     * - the caller must have allowance for ``sender``'s tokens of at least 1.
      */
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         _mint(sender,recipient, amount);
@@ -202,7 +202,7 @@ contract POKTDAO is Context, IERC20 {
      *
      * - `to` cannot be the zero address.
      * - `amount` must be equal to 1
-     * - balance of account must be 0
+     * - account must not have a vote
      */
     function _mint(address AuthorizedMinter, address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: mint to the zero address");
@@ -242,6 +242,10 @@ contract POKTDAO is Context, IERC20 {
      * minting and burning.
      *
      * Calling conditions:
+     * `from` must be have at least one transfer authorized
+     * `amount` must be equal to 1
+     * `to` must not already have a vote
+     * Transfer
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual {
       require(TransfersAuthorized[from]>0,"Transfers not authorized from this account");
