@@ -198,6 +198,8 @@ contract POKTDAO is Context, IERC20 {
      *
      * Emits a {Transfer} event with `from` set to the zero address.
      *
+     * Sets _hasVote[account] to true
+     * 
      * Requirements:
      *
      * - `to` cannot be the zero address.
