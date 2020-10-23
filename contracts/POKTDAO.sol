@@ -10,7 +10,7 @@ import "./math/SafeMath.sol";
  * Pocket DAO Vote Token.
  *
  * @dev This implementation is based on the Open Zeppelin ERC20 implementation, with some modifications.
- * The POKT DAO Vote Token is a non transferable token that holders to vote.
+ * The POKT DAO Vote Token is a non transferable token that holders use to vote by signing messages.
  *
  * Every voter can receive exactly 1 token
  * Once granted a vote can not be taken away
